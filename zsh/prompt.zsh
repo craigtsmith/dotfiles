@@ -19,18 +19,18 @@ git_dirty() {
   then
     echo ""
   else
-    if [[ "$st" =~ ^nothing ]]
-    then
-      echo "on %{$fg_bold[green]%}$(git_prompt_info)%{$reset_color%}"
+    if [[ "$st" =~ "working directory clean" ]]; then
+      echo "on %{$fg_bold[green]%}$(git_prompt_info)"
+    elif [[ "$st" =~ "Changes to be commited" ]]; then
+      echo "on %{$fg_bold[yellow]%}$(git_prompt_info)"
     else
-      echo "on %{$fg_bold[red]%}$(git_prompt_info)%{$reset_color%}"
+      echo "on %{$fg_bold[red]%}$(git_prompt_info)"
     fi
   fi
 }
 
 git_prompt_info () {
  ref=$($git symbolic-ref HEAD 2>/dev/null) || return
-# echo "(%{\e[0;33m%}${ref#refs/heads/}%{\e[0m%})"
  echo "${ref#refs/heads/}"
 }
 
@@ -41,9 +41,9 @@ unpushed () {
 need_push () {
   if [[ $(unpushed) == "" ]]
   then
-    echo " "
+    echo "%{$reset_color%}"
   else
-    echo " with %{$fg_bold[magenta]%}unpushed%{$reset_color%} "
+    echo " ↑%{$reset_color%}"
   fi
 }
 
