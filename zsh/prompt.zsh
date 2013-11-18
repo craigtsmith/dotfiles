@@ -10,43 +10,56 @@ else
 fi
 
 git_branch() {
-  echo $($git symbolic-ref HEAD 2>/dev/null | awk -F/ {'print $NF'})
+  ref=$($git symbolic-ref HEAD 2>/dev/null) || return
+  echo "${ref#refs/heads/}"
 }
 
-git_dirty() {
-  st=$($git status 2>/dev/null | tail -n 1)
+git_state_colour() {
+  st=$($git status 2>/dev/null)
+  state_colour=""
   if [[ $st == "" ]]; then
     echo ""
   else
     if [[ "$st" =~ "working directory clean" ]]; then
-      echo "on %{$fg_bold[green]%}$(git_prompt_info)"
+      state_colour="%{$fg_bold[green]%}"
     elif [[ "$st" =~ "Changes to be committed" ]]; then
-      echo "hello on %{$fg_bold[yellow]%}$(git_prompt_info)"
+      state_colour="%{$fg_bold[yellow]%}"
     else
-      echo "on %{$fg_bold[red]%}$(git_prompt_info)"
+      state_colour="%{$fg_bold[red]%}"
     fi
   fi
+  echo "$state_colour"
 }
 
-git_prompt_info () {
- ref=$($git symbolic-ref HEAD 2>/dev/null) || return
- echo "${ref#refs/heads/}"
-}
+git_push_symbol () {
+  st=$($git status 2>/dev/null)
+  remote_pattern="# Your branch is (.*) of"
 
-unpushed () {
-  $git cherry -v @{upstream} 2>/dev/null
-}
-
-need_push () {
-  if [[ $(unpushed) == "" ]]
-  then
-    echo "%{$reset_color%}"
+  if [[ "$st" =~ $remote_pattern ]]; then
+    if [[ $MATCH =~ "ahead" ]]; then
+      remote="↑"
+    else
+      remote="↓"
+    fi
   else
-    echo " ↑%{$reset_color%}"
+    remote=""
   fi
+
+  diverge_pattern="# Your branch and (.*) have diverged"
+  if [[ "$st" =~ $diverge_pattern ]]; then
+    remote="↕"
+  fi
+
+  echo "$remote"
+}
+
+git_info () {
+  ref=$($git symbolic-ref HEAD 2>/dev/null) || return
+  echo "$(git_state_colour)[$(git_branch)$(git_push_symbol)]%{$reset_color%}"
 }
 
 ruby_version() {
+
   if (( $+commands[rbenv] ))
   then
     echo "$(rbenv version | awk '{print $1}')"
@@ -61,19 +74,35 @@ ruby_version() {
 rb_prompt() {
   if ! [[ -z "$(ruby_version)" ]]
   then
-    echo "%{$fg_bold[yellow]%}$(ruby_version)%{$reset_color%} "
+    echo "%{$fg[red]%}[$(ruby_version)]%{$reset_color%}"
   else
     echo ""
   fi
 }
 
 directory_name() {
-  echo "%{$fg_bold[cyan]%}%1/%\/%{$reset_color%}"
+  echo "%{$fg_bold[cyan]%}%1/%\/"
+}
+
+login_info () {
+  if [[ -z "$SSH_CLIENT" ]]; then
+    echo ""
+  else
+    echo " %{$fg_bold[green]%}%n@$(hostname -s)%{$reset_color%}"
+  fi
+}
+
+time_info () {
+  echo "%{$fg[green]%}%T%{$reset_color%}"
+}
+
+prompt_symbol () {
+  echo "%(?,%{$reset_color%}› ,%{$fg_bold[red]%}› %{$reset_color%}"
 }
 
 set_prompt () {
-  export PROMPT=$'\n$(rb_prompt)in $(directory_name) $(git_dirty)$(need_push)\n› '
-  export RPROMPT="%{$fg_bold[cyan]%}%{$reset_color%}"
+  export RPROMPT="$(rb_prompt)$(git_info)"
+  export PROMPT="$(time_info)$(login_info) $(directory_name) $(prompt_symbol)"
 }
 
 precmd() {
