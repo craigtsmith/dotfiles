@@ -15,14 +15,13 @@ git_branch() {
 
 git_dirty() {
   st=$($git status 2>/dev/null | tail -n 1)
-  if [[ $st == "" ]]
-  then
+  if [[ $st == "" ]]; then
     echo ""
   else
     if [[ "$st" =~ "working directory clean" ]]; then
       echo "on %{$fg_bold[green]%}$(git_prompt_info)"
-    elif [[ "$st" =~ "Changes to be commited" ]]; then
-      echo "on %{$fg_bold[yellow]%}$(git_prompt_info)"
+    elif [[ "$st" =~ "Changes to be committed" ]]; then
+      echo "hello on %{$fg_bold[yellow]%}$(git_prompt_info)"
     else
       echo "on %{$fg_bold[red]%}$(git_prompt_info)"
     fi
