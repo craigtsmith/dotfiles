@@ -15,7 +15,7 @@ fi
 if test ! $(which heroku)
 then
   echo "  Installing Heroku Toolbelt for you."
-  curl toolbelt.heroku.com/install.sh | sh
+  curl https://toolbelt.heroku.com/install.sh | sh
 fi
 
 exit 0
