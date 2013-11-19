@@ -5,7 +5,7 @@
 # Common development things that i need
 
 # Check for Pow
-if test ! $(which pow)
+if ! [[ -a ~/.pow ]]
 then
   echo "  Installing Pow for you."
   curl get.pow.cx | sh
@@ -17,3 +17,5 @@ then
   echo "  Installing Heroku Toolbelt for you."
   curl toolbelt.heroku.com/install.sh | sh
 fi
+
+exit 0
