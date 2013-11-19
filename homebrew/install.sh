@@ -13,6 +13,6 @@ then
 fi
 
 # Install homebrew packages
-brew install grc coreutils spark memcache redis
+brew install grc coreutils spark memcached redis
 
 exit 0
