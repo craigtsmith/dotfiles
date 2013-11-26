@@ -71,10 +71,18 @@ ruby_version() {
   fi
 }
 
+gemsets() {
+
+  if (( $+commands[rbenv] ))
+  then
+    echo "$(rbenv gemset active)"
+  fi
+}
+
 rb_prompt() {
   if ! [[ -z "$(ruby_version)" ]]
   then
-    echo "%{$fg[red]%}[$(ruby_version)]%{$reset_color%}"
+    echo "%{$fg[red]%}[$(ruby_version)]%{$fg[magenta]%}[$(gemsets)]%{$reset_color%}"
   else
     echo ""
   fi

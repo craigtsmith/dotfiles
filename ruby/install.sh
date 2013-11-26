@@ -29,18 +29,32 @@ else
   echo "  ------\n"
 fi
 
-if ! [[ -a ~/.rbenv/plugins/rbenv-default-gems ]]
+# if ! [[ -a ~/.rbenv/plugins/rbenv-default-gems ]]
+# then
+#   echo "  Installing rbenv-default-gems plugin for you"
+#   mkdir -p ~/.rbenv/plugins
+#   cd ~/.rbenv/plugins
+#   git clone https://github.com/sstephenson/rbenv-default-gems.git
+#   ln -s $ZSH/ruby/default-gems ~/.rbenv/default-gems
+#   echo "  ------\n"
+# else
+#   echo "  updating rbenv-default-gems plugin for you"
+#   ln -s $ZSH/ruby/default-gems ~/.rbenv/default-gems
+#   cd ~/.rbenv/plugins/rbenv-default-gems
+#   git pull --prune
+#   echo "  ------\n"
+# fi
+
+if ! [[ -a ~/.rbenv/plugins/rbenv-gemset ]]
 then
-  echo "  Installing rbenv-default-gems plugin for you"
+  echo "  Installing rbenv-gemset plugin for you"
   mkdir -p ~/.rbenv/plugins
   cd ~/.rbenv/plugins
-  git clone https://github.com/sstephenson/rbenv-default-gems.git
-  ln -s $ZSH/ruby/default-gems ~/.rbenv/default-gems
+  git clone git://github.com/jf/rbenv-gemset.git
   echo "  ------\n"
 else
-  echo "  updating rbenv-default-gems plugin for you"
-  ln -s $ZSH/ruby/default-gems ~/.rbenv/default-gems
-  cd ~/.rbenv/plugins/rbenv-default-gems
+  echo "  updating rbenv-gemset plugin for you"
+  cd ~/.rbenv/plugins/rbenv-gemset
   git pull --prune
   echo "  ------\n"
 fi
