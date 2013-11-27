@@ -1,0 +1,100 @@
+#!/usr/bin/env ruby
+
+DATE_REGEX = /(\b\d{1,2}[d,h,n,r,s,t]{0,2}\s[a-zA-Z,]+\s\d{2,4}|\b\d{1,2}\s?\/\s?\d{1,2}\s?\/\s?\d{2,4})/
+PAGE_REGEX = /[pP]age\s?(\d+)\s?[a-zA-Z]+\s?(\d+)/
+
+require 'tmpdir'
+require 'date'
+
+def process(document_name)
+	abort "\nERROR! - '' is not a valid document\n\n" unless document_name
+
+	@document_name = document_name
+	@document_path = Dir.pwd
+	@document = File.join(document_path, document_name)
+	word_count = 0
+
+	abort "\nERROR! - '#{document}' is not a valid document\n\n" unless File.exist?(document)
+
+	start = Time.now
+	@dir = Dir.mktmpdir
+	begin
+		puts "\nProcessing '#{document_name}'...\n\n"
+
+		perform_ocr
+		word_count = content.split.size
+
+		output_name = ((has_date ? "" : "SCANNED ") + document_date)
+
+		puts needs_tag 	? "Document may need merging. Adding a tag..." : "Document is a single page document"
+		puts has_date 	? "Document date detected as '#{output_name}'" : "Document date could not be determined."
+		
+		output_name += ".pdf"
+		puts "Saving searchable PDF as '#{output_name}'"
+
+		output = File.join(document_path, output_name)
+		perform_ocr(:hocr)
+		generate_searchable_pdf(output)
+		add_tag(output)
+
+	ensure
+	  FileUtils.remove_entry_secure dir
+	end
+	finish = Time.now
+
+	puts "Removing '#{document}"
+	File.delete(document)
+
+	puts "\nCompleted in #{finish - start} seconds. Found ~ #{word_count} words in document.\n\n"
+end
+
+def dir
+	@dir
+end
+
+def document_path
+	@document_path
+end
+
+def document
+	@document
+end
+
+def document_name
+	@document_name
+end
+
+def ocr_file(as=nil)
+	file = (@ocr_file ||= File.join(dir, document_name+Time.now.to_i.to_s))
+	as ? "#{file}.#{as}" : file
+end
+
+def content
+	@content ||= IO.read ocr_file(:txt)
+end
+
+def needs_tag
+	@needs_tag ||= (pages = content.scan(PAGE_REGEX)[0] ? (pages[0] != pages[1]) : false)
+end
+
+def has_date
+	@has_date ||= content.scan(DATE_REGEX)[0]
+end
+
+def document_date
+	@document_date ||= (has_date ? Date.parse(has_date[0]) : Date.parse(`mdls -name kMDItemContentCreationDate -raw '"#{document}"'`)).to_s
+end
+
+def perform_ocr(output='')
+	`tesseract '#{document}' '#{ocr_file}' #{output.to_s} 2>/dev/null`
+end
+
+def generate_searchable_pdf(output)
+	`hocr2pdf -i '#{document}' -s -o '#{output}' < '#{ocr_file(:html)}' 2>/dev/null`
+end
+
+def add_tag(output)
+	`tag --add "Merge Review" #{output}` if needs_tag
+end
+
+process ARGV[0]
