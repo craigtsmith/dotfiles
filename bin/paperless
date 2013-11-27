@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
+# encoding: UTF-8
 
-DATE_REGEX = /(\b\d{1,2}[d,h,n,r,s,t]{0,2}\s[a-zA-Z,]+\s\d{2,4}|\b\d{1,2}\s?\/\s?\d{1,2}\s?\/\s?\d{2,4})/
+DATE_REGEX = /(\b\d{1,2}.{0,2}\s[a-zA-Z,]+\s\d{2,4}|\b\d{1,2}\s?\/\s?\d{1,2}\s?\/\s?\d{2,4})/
 PAGE_REGEX = /[pP]age\s?(\d+)\s?[a-zA-Z]+\s?(\d+)/
 
 require 'tmpdir'
@@ -9,9 +10,9 @@ require 'date'
 def process(document_name)
 	abort "\nERROR! - '' is not a valid document\n\n" unless document_name
 
-	@document_name = document_name
-	@document_path = Dir.pwd
-	@document = File.join(document_path, document_name)
+	@document_name = File.basename document_name
+	@document_path = File.dirname File.absolute_path(document_name)
+	@document = File.absolute_path(document_name)
 	word_count = 0
 
 	abort "\nERROR! - '#{document}' is not a valid document\n\n" unless File.exist?(document)
@@ -22,7 +23,7 @@ def process(document_name)
 		puts "\nProcessing '#{document_name}'...\n\n"
 
 		perform_ocr
-		word_count = content.split.size
+		word_count = content.force_encoding("UTF-8").split.size
 
 		output_name = ((has_date ? "" : "SCANNED ") + document_date)
 
@@ -70,7 +71,7 @@ def ocr_file(as=nil)
 end
 
 def content
-	@content ||= IO.read ocr_file(:txt)
+	@content ||= IO.read ocr_file(:txt).force_encoding("UTF-8")
 end
 
 def needs_tag
@@ -82,7 +83,8 @@ def has_date
 end
 
 def document_date
-	@document_date ||= (has_date ? Date.parse(has_date[0]) : Date.parse(`mdls -name kMDItemContentCreationDate -raw '"#{document}"'`)).to_s
+	(has_date ? Date.parse(has_date[0].gsub(/\W+\s/, ' ')) : 
+				Date.parse(`mdls -name kMDItemContentCreationDate -raw "#{document}"`)).to_s
 end
 
 def perform_ocr(output='')
