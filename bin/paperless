@@ -83,8 +83,13 @@ def has_date
 end
 
 def document_date
-	(has_date ? Date.parse(has_date[0].gsub(/\W+\s/, ' ')) : 
-				Date.parse(`mdls -name kMDItemContentCreationDate -raw "#{document}"`)).to_s
+	if has_date
+		begin
+			return Date.parse(has_date[0].gsub(/\W+\s/, ' ')).to_s
+		rescue
+		end
+	end
+	Time.now.to_s
 end
 
 def perform_ocr(output='')
