@@ -19,6 +19,6 @@ brew update
 brew tap craigtsmith/homebrew-additions
 
 # Install what we can from brew
-brew install exact-image tag tesseract
+brew install exact-image tag tesseract imagemagick
 
 exit 0

@@ -1,11 +1,14 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 
-DATE_REGEX = /(\b\d{1,2}.{0,2}\s[a-zA-Z,]+\s\d{2,4}|\b\d{1,2}\s?\/\s?\d{1,2}\s?\/\s?\d{2,4})/
+DATE_REGEX = /(\b\d{1,2}[dhnrst.,“”‘"']{0,2}\s[januryfebmchpilgstovd.,“”‘"']{3,}\s\d{2,4}|\b[januryfebmchpilgstovd.,“”‘"']{3,}\s\d{1,2}[dhnrst.,“”‘"']{0,2}\s\d{2,4}|\b\d{1,2}\s?\/\s?\d{1,2}\s?\/\s?\d{2,4})/i
+# Last update 14/12/13 - http://rubular.com/r/Nv2mVhVkmS
+
 PAGE_REGEX = /[pP]age\s?(\d+)\s?[a-zA-Z]+\s?(\d+)/
 
 require 'tmpdir'
 require 'date'
+require 'securerandom'
 
 def process(document_name)
 	abort "\nERROR! - '' is not a valid document\n\n" unless document_name
@@ -22,14 +25,16 @@ def process(document_name)
 	begin
 		puts "\nProcessing '#{document_name}'...\n\n"
 
+		clean_up_document
 		perform_ocr
 		word_count = content.force_encoding("UTF-8").split.size
-
-		output_name = ((has_date ? "" : "SCANNED ") + document_date)
-
-		puts needs_tag 	? "Document may need merging. Adding a tag..." : "Document is a single page document"
-		puts has_date 	? "Document date detected as '#{output_name}'" : "Document date could not be determined."
 		
+		puts needs_tag 	? "Document may need merging. Adding a tag..." : "Document is a single page document"
+		output_name = ((should_use_detected_date ? "" : "SCANNED--") + document_date)
+		
+		puts has_date 	? "Document date detected as '#{output_name}'" : "Document date could not be determined." unless not_first_page
+		puts "Document is part of multipage document, date scan skipped." if not_first_page
+
 		output_name += ".pdf"
 		puts "Saving searchable PDF as '#{output_name}'"
 
@@ -38,14 +43,15 @@ def process(document_name)
 		generate_searchable_pdf(output)
 		add_tag(output)
 
+		puts "Removing '#{document}"
+		File.delete(document)
+	rescue
+		`tag --add "Failed Paperless" '#{document}'`
 	ensure
-	  FileUtils.remove_entry_secure dir
+		FileUtils.remove_entry_secure dir
 	end
+
 	finish = Time.now
-
-	puts "Removing '#{document}"
-	File.delete(document)
-
 	puts "\nCompleted in #{finish - start} seconds. Found ~ #{word_count} words in document.\n\n"
 end
 
@@ -66,7 +72,7 @@ def document_name
 end
 
 def ocr_file(as=nil)
-	file = (@ocr_file ||= File.join(dir, document_name+Time.now.to_i.to_s))
+	file = (@ocr_file ||= File.join(dir, document_name.gsub(/\.jpg/i, '')+"-ocr-#{Time.now.to_i.to_s}"))
 	as ? "#{file}.#{as}" : file
 end
 
@@ -75,7 +81,18 @@ def content
 end
 
 def needs_tag
-	@needs_tag ||= (pages = content.scan(PAGE_REGEX)[0] ? (pages[0] != pages[1]) : false)
+	pages = content.scan(PAGE_REGEX)[0]
+	@needs_tag ||= (pages ? !((@pagex = pages[0]) == (@pagey = pages[1])) : false)
+	@needs_tag = ((@pagex == @pagey) && (@pagey.to_s != 1.to_s)) if (@needs_tag == false && !@pagex.nil? && !@pagey.nil?)
+	@needs_tag
+end
+
+def not_first_page
+	(needs_tag && @pagex.to_s != 1.to_s)
+end
+
+def should_use_detected_date
+	(!not_first_page && has_date)
 end
 
 def has_date
@@ -83,25 +100,46 @@ def has_date
 end
 
 def document_date
-	if has_date
+	if should_use_detected_date
+		date = find_real_date
+	end
+	date ||= Time.now.strftime("%Y-%m-%d")
+	"#{date}"
+end
+
+def find_real_date
+	date = nil
+	content.scan(DATE_REGEX).each do |captured_date|
 		begin
-			return Date.parse(has_date[0].gsub(/\W+\s/, ' ')).to_s
+			date = Date.parse(captured_date[0].gsub(/\W+\s/, ' ')).to_s
+			break
 		rescue
+			next
 		end
 	end
-	Time.now.to_s
+	date
+end
+
+def hc_image
+	file = (@hc_image ||= File.join(dir, document_name.gsub(/\.jpg/i, '')+"-bw.jpg"))
+	"#{file}"
+end
+
+def clean_up_document
+	`convert -deskew 40% '#{document}' '#{document}'`
+	`textcleaner -g -e stretch -u '#{document}' '#{hc_image}'` # -p 20 -s 1 -T -f 5 -t 1 
 end
 
 def perform_ocr(output='')
-	`tesseract '#{document}' '#{ocr_file}' #{output.to_s} 2>/dev/null`
+	`tesseract '#{hc_image}' '#{ocr_file}' #{output.to_s} 2>/dev/null`
 end
 
 def generate_searchable_pdf(output)
-	`hocr2pdf -i '#{document}' -s -o '#{output}' < '#{ocr_file(:html)}' 2>/dev/null`
+	`hocr2pdf -i '#{document}' -o '#{output}' < '#{ocr_file(:html)}' 2>/dev/null`
 end
 
 def add_tag(output)
-	`tag --add "Merge Review" #{output}` if needs_tag
+	`tag --add "Merge Review" '#{output}'` if needs_tag
 end
 
 process ARGV[0]
