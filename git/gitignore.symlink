@@ -1,6 +1,3 @@
 .DS_Store
-.svn
 *~
 *.swp
-*.rbc
-.ruby-version

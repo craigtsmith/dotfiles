@@ -58,6 +58,7 @@ git_info () {
 }
 
 ruby_version() {
+
   if (( $+commands[rbenv] ))
   then
     echo "$(rbenv version | awk '{print $1}')"
@@ -69,17 +70,25 @@ ruby_version() {
   fi
 }
 
+gemsets() {
+
+  if (( $+commands[rbenv] ))
+  then
+    echo "$(rbenv gemset active)"
+  fi
+}
+
 rb_prompt() {
   if ! [[ -z "$(ruby_version)" ]]
   then
-    echo "%{$fg_bold[yellow]%}$(ruby_version)%{$reset_color%} "
+    echo "%{$fg[red]%}[$(ruby_version)]%{$reset_color%}"
   else
     echo ""
   fi
 }
 
 directory_name() {
-  echo "%{$fg_bold[cyan]%}%1/%\/%{$reset_color%}"
+  echo "%{$fg_bold[cyan]%}%1/%\/"
 }
 
 login_info () {
@@ -99,8 +108,8 @@ prompt_symbol () {
 }
 
 set_prompt () {
-  export RPROMPT=$'$(rb_prompt)$(git_info)'
-  export PROMPT=$'$(time_info)$(login_info) $(directory_name) $(prompt_symbol)'
+  export RPROMPT="$(rb_prompt)$(git_info)"
+  export PROMPT="$(time_info)$(login_info) $(directory_name) $(prompt_symbol)"
 }
 
 precmd() {
