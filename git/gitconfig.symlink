@@ -31,3 +31,9 @@
         #
         # Setting to git 2.0 default to suppress warning message
         default = simple
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean %f
+	smudge = git-lfs smudge %f
+[user]
+	signingkey = A26485E9

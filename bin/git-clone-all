@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Clone all repos for given user / org
+
+path=""
+name=""
+
+echo "Cloning repos from a User or Organisation?"
+select userorg in "User" "Organisation"; do
+  case $userorg in
+    User ) path="users"; break;;
+    Organisation ) path="orgs"; break;;
+  esac
+done
+
+read -p "And the name?: " name
+curl -u $GH_TOKEN:x-oauth-basic -s https://api.github.com/$path/$name/repos\?per_page=200 | ruby -rubygems -e 'require "json"; JSON.load(STDIN.read).each { |repo| %x[git clone #{repo["ssh_url"]} ]}'
