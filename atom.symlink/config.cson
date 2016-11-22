@@ -14,11 +14,13 @@
       "tmp"
       "vendor"
     ]
+    telemetryConsent: "limited"
   editor:
     fontFamily: "Menlo"
     fontSize: 15
     invisibles: {}
     showIndentGuide: true
+    showInvisibles: true
     softWrapAtPreferredLineLength: true
   "go-plus":
     goPath: "/Users/holman/Code/go"

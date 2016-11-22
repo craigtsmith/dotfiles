@@ -41,3 +41,6 @@ done
 unset config_files
 
 export PATH="$HOME/.bin:$PATH"
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+source /usr/local/opt/autoenv/activate.sh

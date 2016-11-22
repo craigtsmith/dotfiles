@@ -15,7 +15,7 @@
         branch = auto
         ui = true
 [core]
-        excludesfile = ~/.gitignore
+	excludesfile = /Users/craigtsmith/.gitignore
         editor = vim
 [apply]
         whitespace = nowarn
@@ -37,3 +37,13 @@
 	smudge = git-lfs smudge %f
 [user]
 	signingkey = A26485E9
+	name = craig t smith
+	email = craigtsmith@users.noreply.github.com
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[commit]
+	template = /Users/craigtsmith/.stCommitMsg
