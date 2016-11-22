@@ -32,19 +32,19 @@ git_state_colour() {
 
 git_push_symbol () {
   st=$($git status 2>/dev/null)
-  remote_pattern="# Your branch is (.*) of"
+  remote_pattern="Your branch is (.*) of"
 
   if [[ "$st" =~ $remote_pattern ]]; then
     if [[ $MATCH =~ "ahead" ]]; then
-      remote="↑"
+      remote=" ↑"
     else
-      remote="↓"
+      remote=" ↓"
     fi
   else
     remote=""
   fi
 
-  diverge_pattern="# Your branch and (.*) have diverged"
+  diverge_pattern="Your branch and (.*) have diverged"
   if [[ "$st" =~ $diverge_pattern ]]; then
     remote="↕"
   fi
