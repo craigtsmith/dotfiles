@@ -19,7 +19,7 @@ git_state_colour() {
   if [[ $st == "" ]]; then
     echo ""
   else
-    if [[ "$st" =~ "working directory clean" ]]; then
+    if [[ "$st" =~ "working tree clean" ]]; then
       state_colour="%{$fg_bold[green]%}"
     elif [[ "$st" =~ "Changes to be committed" ]]; then
       state_colour="%{$fg_bold[yellow]%}"
