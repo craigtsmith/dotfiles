@@ -10,7 +10,10 @@ else
 fi
 
 git_branch() {
-  echo $($git symbolic-ref HEAD 2>/dev/null | awk -F/ {'print $NF'})
+  ref=$($git symbolic-ref HEAD 2>/dev/null) || return
+  echo "${ref#refs/heads/}"
+  #
+  # echo $($git symbolic-ref HEAD 2>/dev/null | awk -F/ {'print $NF'})
 }
 
 git_state_colour() {
