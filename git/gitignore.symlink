@@ -3,3 +3,5 @@
 *.swp
 .idea/
 .rbenv
+.rbenv-vars
+.env
