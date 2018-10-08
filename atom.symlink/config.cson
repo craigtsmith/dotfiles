@@ -1,5 +1,18 @@
 "*":
   core:
+    customFileTypes:
+      "source.ini": [
+        ".buckconfig"
+        ".hgrc"
+        ".flowconfig"
+      ]
+      "source.json": [
+        ".arcconfig"
+        "BUCK.autodeps"
+      ]
+      "source.python": [
+        "BUCK"
+      ]
     disabledPackages: [
       "background-tips"
       "exception-reporting"
@@ -17,13 +30,19 @@
     telemetryConsent: "limited"
   editor:
     fontFamily: "Menlo"
-    fontSize: 15
+    fontSize: 12
     invisibles: {}
+    preferredLineLength: 110
     showIndentGuide: true
     showInvisibles: true
+    softWrap: true
     softWrapAtPreferredLineLength: true
   "go-plus":
     goPath: "/Users/holman/Code/go"
+  nuclide:
+    installRecommendedPackages: true
+    "nuclide-code-format":
+      formatOnSave: true
   "one-dark-ui": {}
   "release-notes":
     viewedVersion: "0.89.0"
@@ -33,5 +52,8 @@
       "source.gfm"
       "text.git-commit"
     ]
+  "tree-view":
+    alwaysOpenExisting: true
+    autoReveal: true
   welcome:
     showOnStartup: false
