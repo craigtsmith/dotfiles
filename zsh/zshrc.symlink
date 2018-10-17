@@ -55,3 +55,22 @@ do
 done
 
 unset config_files
+<<<<<<< HEAD
+=======
+
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel9k/powerlevel9k"
+
+plugins=(
+  git
+  zsh-autosuggestions
+  dotenv
+)
+
+source $ZSH/oh-my-zsh.sh
+
+export DEFAULT_USER="craigtsmith"
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+export POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status root_indicator rbenv background_jobs time)
+>>>>>>> ef493045aa6c3c37a3b3cda9f8d67ae7b2a05798
