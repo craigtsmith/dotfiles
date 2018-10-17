@@ -46,6 +46,7 @@ ZSH_THEME="powerlevel9k/powerlevel9k"
 plugins=(
   git
   zsh-autosuggestions
+  dotenv
 )
 
 source $ZSH/oh-my-zsh.sh
