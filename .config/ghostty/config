@@ -1,0 +1,20 @@
+background-blur = 20
+background-opacity = 0.9
+
+keybind = global:cmd+opt+up=toggle_quick_terminal
+
+macos-auto-secure-input = true
+macos-dock-drop-behavior = window
+macos-non-native-fullscreen = padded-notch
+macos-option-as-alt = true
+macos-secure-input-indication = true
+macos-titlebar-style = hidden
+
+quick-terminal-size = 1600px
+
+theme = Catppuccin Frappe
+
+window-inherit-working-directory = true
+window-padding-balance = true
+window-padding-x = 10
+window-padding-y = 10

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# Run all dotfiles installers.
+
+set -e
+
+export DOTFILES=$HOME/.dotfiles
+
+# find the installers and run them iteratively
+find $DOTFILES/lib -name install.sh | while read installer ; do sh -c "${installer}" ; done
+
+mv $HOME/.zshrc $HOME/.zshrc.backup
+stow .
+
+# clear
+# echo "🎉 Dotfiles installed successfully."
