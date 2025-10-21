@@ -1,0 +1,29 @@
+# Dotfiles Brewfile
+# Install with: brew bundle install --file=scripts/Brewfile
+
+# Core CLI tools
+brew "coreutils"
+brew "jq"
+brew "stow"
+
+# Shell enhancements
+brew "direnv"
+brew "eza"
+brew "fzf"
+brew "gum"
+brew "starship"
+brew "zoxide"
+
+# Development tools
+brew "gh"
+brew "nvm"
+brew "tmux"
+brew "uv"
+
+# Additional tools
+brew "ansible"
+
+# Casks (macOS only)
+cask "1password-cli"
+cask "font-symbols-only-nerd-font"
+cask "codex"

@@ -1,0 +1,21 @@
+.git
+.DS_Store
+
+# Scripts and config
+scripts
+install.sh
+backups
+.update-timestamps
+
+# Git repo files
+.gitignore
+.stow-local-ignore
+README.md
+
+# Agent runtime/cache directories
+\.claude/cache
+\.claude/history\.jsonl
+\.claude/plugins
+\.claude/projects
+\.codex/auth\.json
+\.codex/history\.jsonl

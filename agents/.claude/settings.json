@@ -1,0 +1,22 @@
+{
+  "model": "opus",
+  "statusLine": {
+    "type": "command",
+    "command": "input=$(cat); cwd=$(echo \"$input\" | jq -r '.workspace.current_dir'); model=$(echo \"$input\" | jq -r '.model.display_name'); dir=$(basename \"$cwd\"); branch=$(git -C \"$cwd\" --no-optional-locks branch --show-current 2>/dev/null); if [ -n \"$branch\" ]; then printf \"\\033[36m%s\\033[0m on \\033[35m%s\\033[0m • %s\" \"$dir\" \"$branch\" \"$model\"; else printf \"\\033[36m%s\\033[0m • %s\" \"$dir\" \"$model\"; fi"
+  },
+  "attribution": {
+    "commit": "Co-Authored-By: agent smith <craigts-agent@users.noreply.github.com>",
+    "pr": ""
+  },
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": false,
+    "plugin-dev@claude-plugins-official": false,
+    "linear@claude-plugins-official": false,
+    "hookify@claude-plugins-official": false,
+    "code-simplifier@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true
+  },
+  "alwaysThinkingEnabled": true
+}

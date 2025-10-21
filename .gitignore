@@ -1,0 +1,12 @@
+# Local/private config
+.gitconfig.local
+.localrc
+
+# OS files
+.DS_Store
+
+# Backup directory
+backups/
+
+# Update tracking
+.update-timestamps

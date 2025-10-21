@@ -1,0 +1,5 @@
+# Default npm packages to install with new Node versions
+# Used by nvm when installing new node versions
+# Format: package-name or package-name@version
+
+@anthropic-ai/claude-code
