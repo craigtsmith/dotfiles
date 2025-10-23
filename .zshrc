@@ -7,7 +7,7 @@ source $DOTFILES/lib/dotfiles/dotfiles.zsh
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='nano'
 else
-  export EDITOR='cursor'
+  export EDITOR='nano'
 fi
 
 # Stash your environment variables in ~/.localrc. This means they'll stay out
