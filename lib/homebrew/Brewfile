@@ -1,5 +1,4 @@
 brew "ansible"
-brew "codex"
 brew "coreutils"
 brew "direnv"
 brew "eza"
@@ -14,3 +13,4 @@ brew "zoxide"
 
 cask "1password-cli"
 cask "font-symbols-only-nerd-font"
+cask "codex"
