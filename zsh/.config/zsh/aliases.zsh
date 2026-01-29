@@ -1,5 +1,8 @@
 # Shell Aliases
 
+# Dotfiles installer
+alias dotfiles="$DOTFILES/install.sh"
+
 # Reload shell configuration
 alias reload!="omz reload"
 
