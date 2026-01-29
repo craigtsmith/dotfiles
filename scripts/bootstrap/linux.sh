@@ -85,7 +85,7 @@ bootstrap_linux() {
 
   # nvm (check directory instead of command)
   if [[ ! -d "$HOME/.nvm" ]]; then
-    spin "Installing nvm" bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash >/dev/null 2>&1"
+    spin "Installing nvm" bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash >/dev/null 2>&1"
     CHANGES_MADE=true
   else
     info "nvm already installed"

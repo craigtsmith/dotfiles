@@ -8,6 +8,7 @@
 #   ./install.sh --minimal    # Skip heavy tools
 #   ./install.sh --verbose    # Show all messages
 #   ./install.sh --skip-updates # Skip update checks
+#   ./install.sh --force      # Skip checks, run everything
 #
 
 set -e
@@ -19,6 +20,7 @@ export CHANGES_MADE=false
 export VERBOSE=false
 export MINIMAL_MODE=false
 export SKIP_UPDATES=false
+export FORCE_MODE=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -26,6 +28,7 @@ while [[ $# -gt 0 ]]; do
     --minimal) MINIMAL_MODE=true ;;
     --verbose) VERBOSE=true ;;
     --skip-updates) SKIP_UPDATES=true ;;
+    --force) FORCE_MODE=true ;;
   esac
   shift
 done
@@ -43,7 +46,7 @@ _install_gum() {
     mkdir -p "$HOME/.local/bin"
     local arch="x86_64"
     [[ "$DF_OS_ARCH" == "aarch64" || "$DF_OS_ARCH" == "arm64" ]] && arch="arm64"
-    curl -sL "https://github.com/charmbracelet/gum/releases/download/v0.14.5/gum_0.14.5_Linux_${arch}.tar.gz" | tar -xz -C /tmp gum 2>/dev/null
+    curl -sL "https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/gum_${GUM_VERSION}_Linux_${arch}.tar.gz" | tar -xz -C /tmp gum 2>/dev/null
     mv /tmp/gum "$HOME/.local/bin/" 2>/dev/null || maybe_sudo mv /tmp/gum /usr/local/bin/
   fi
 }

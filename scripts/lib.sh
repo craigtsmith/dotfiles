@@ -3,6 +3,10 @@
 # Core helper functions for dotfiles
 #
 
+# Tool versions
+export GUM_VERSION="0.16.0"
+export NVM_VERSION="0.40.1"
+
 # Update tracking file
 UPDATE_FILE="$DOTFILES/.update-timestamps"
 UPDATE_INTERVAL=$((7 * 24 * 60 * 60))  # 7 days in seconds
@@ -89,6 +93,9 @@ needs_update() {
   local key="$1"
   local now last_update
 
+  # Force mode always returns true (needs update)
+  [[ "$FORCE_MODE" == "true" ]] && return 0
+
   # Skip all update checks if SKIP_UPDATES is set
   [[ "$SKIP_UPDATES" == "true" ]] && return 1
 
@@ -165,14 +172,14 @@ install_omz_plugin() {
   fi
 }
 
-# Install a tool via curl if not present
+# Install a tool via curl if not present (or force reinstall)
 # Usage: install_with_curl "command" "label" "curl_command"
 install_with_curl() {
   local cmd="$1"
   local label="$2"
   local curl_cmd="$3"
 
-  if ! command_exists "$cmd"; then
+  if [[ "$FORCE_MODE" == "true" ]] || ! command_exists "$cmd"; then
     spin "$label" bash -c "$curl_cmd"
     CHANGES_MADE=true
   else
