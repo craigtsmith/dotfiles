@@ -89,31 +89,32 @@ zstyle ':omz:plugins:nvm' silent-autoload yes
 # =============================================================================
 # PATH Configuration (replaces .profile)
 # =============================================================================
+# Helper to add to PATH without duplicates
+_add_to_path() {
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) export PATH="$1:$PATH" ;;
+  esac
+}
+
 # Local bin
-if [[ -d "$HOME/.local/bin" ]]; then
-  export PATH="$HOME/.local/bin:$PATH"
-fi
+[[ -d "$HOME/.local/bin" ]] && _add_to_path "$HOME/.local/bin"
 
 # Docker
-if [[ -d "$HOME/.docker/bin" ]]; then
-  export PATH="$HOME/.docker/bin:$PATH"
-fi
+[[ -d "$HOME/.docker/bin" ]] && _add_to_path "$HOME/.docker/bin"
 
-# pnpm - platform-aware path
+# pnpm
 if [[ "$DF_OS_TYPE" == "macos" ]]; then
   export PNPM_HOME="$HOME/Library/pnpm"
 else
   export PNPM_HOME="$HOME/.local/share/pnpm"
 fi
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+_add_to_path "$PNPM_HOME"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
 if [[ -d "$BUN_INSTALL" ]]; then
-  export PATH="$BUN_INSTALL/bin:$PATH"
+  _add_to_path "$BUN_INSTALL/bin"
   [[ -s "$BUN_INSTALL/_bun" ]] && source "$BUN_INSTALL/_bun"
 fi
 
