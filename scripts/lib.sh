@@ -12,38 +12,6 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-# Clone a git repository or update it if it already exists
-# Returns 0 if cloned/updated, 1 if no changes
-clone_or_update() {
-  local repo="$1"
-  local dest="$2"
-  local name="${3:-$(basename "$dest")}"
-
-  if [[ ! -d "$dest" ]]; then
-    git clone --quiet "$repo" "$dest" 2>/dev/null
-    return 0  # Cloned (change made)
-  fi
-  return 1  # Already exists
-}
-
-# Update a git repo if allowed by update interval
-# Returns 0 if updated, 1 if skipped
-maybe_update_repo() {
-  local dest="$1"
-  local name="$2"
-
-  if [[ ! -d "$dest" ]]; then
-    return 1
-  fi
-
-  if needs_update "$name"; then
-    git -C "$dest" pull --ff-only --quiet 2>/dev/null || true
-    set_updated "$name"
-    return 0
-  fi
-  return 1
-}
-
 # Detect OS type and architecture
 detect_os() {
   local uname_s uname_m
