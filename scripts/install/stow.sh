@@ -24,6 +24,8 @@ install_stow() {
       info "Stowed $topic"
     elif stow --adopt -R "$topic" 2>/dev/null; then
       info "Stowed $topic (adopted)"
+    else
+      warn "Failed to stow $topic"
     fi
   done
 
