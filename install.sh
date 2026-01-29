@@ -46,8 +46,10 @@ _install_gum() {
     mkdir -p "$HOME/.local/bin"
     local arch="x86_64"
     [[ "$DF_OS_ARCH" == "aarch64" || "$DF_OS_ARCH" == "arm64" ]] && arch="arm64"
-    curl -sL "https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/gum_${GUM_VERSION}_Linux_${arch}.tar.gz" | tar -xz -C /tmp gum 2>/dev/null
-    mv /tmp/gum "$HOME/.local/bin/" 2>/dev/null || maybe_sudo mv /tmp/gum /usr/local/bin/
+    local gum_dir="gum_${GUM_VERSION}_Linux_${arch}"
+    curl -sL "https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/${gum_dir}.tar.gz" | tar -xz -C /tmp 2>/dev/null
+    mv "/tmp/${gum_dir}/gum" "$HOME/.local/bin/" 2>/dev/null || maybe_sudo mv "/tmp/${gum_dir}/gum" /usr/local/bin/
+    rm -rf "/tmp/${gum_dir}" 2>/dev/null
   fi
 }
 

@@ -20,5 +20,5 @@ install_backup() {
     fi
   done
 
-  [[ $backed_up -eq 0 ]] && info "No files to backup"
+  [[ $backed_up -eq 0 ]] && info "No files to backup" || true
 }
