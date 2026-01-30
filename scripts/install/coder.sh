@@ -11,5 +11,5 @@ install_coder() {
   fi
 
   install_with_curl "coder" "Installing Coder CLI" \
-    "curl -fsSL https://coder.com/install.sh | sh >/dev/null 2>&1"
+    "curl -fsSL https://coder.com/install.sh | sh"
 }

@@ -181,6 +181,7 @@ install_omz_plugin() {
 }
 
 # Install a tool via curl if not present (or force reinstall)
+# Runs WITHOUT spinner since external scripts may need interactive input
 # Usage: install_with_curl "command" "label" "curl_command"
 install_with_curl() {
   local cmd="$1"
@@ -188,8 +189,13 @@ install_with_curl() {
   local curl_cmd="$3"
 
   if [[ "$FORCE_MODE" == "true" ]] || ! command_exists "$cmd"; then
-    spin "$label" bash -c "$curl_cmd"
-    CHANGES_MADE=true
+    printf "  %s...\n" "$label"
+    if bash -c "$curl_cmd"; then
+      CHANGES_MADE=true
+    else
+      error "$label failed"
+      return 1
+    fi
   else
     info "$cmd already installed"
   fi
