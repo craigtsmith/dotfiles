@@ -8,6 +8,8 @@ _GUM_AVAILABLE=""
 has_gum() {
   if [[ -z "$_GUM_AVAILABLE" ]]; then
     command -v gum >/dev/null 2>&1 && _GUM_AVAILABLE="yes" || _GUM_AVAILABLE="no"
+  elif [[ "$_GUM_AVAILABLE" == "no" ]] && command -v gum >/dev/null 2>&1; then
+    _GUM_AVAILABLE="yes"
   fi
   [[ "$_GUM_AVAILABLE" == "yes" ]]
 }
