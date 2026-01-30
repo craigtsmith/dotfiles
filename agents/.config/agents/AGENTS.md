@@ -4,8 +4,9 @@ Personal defaults for AI coding agents (Claude Code, Codex, Cursor, etc.)
 
 ## Git
 
-- Commit early and often - don't accumulate large uncommitted changesets
-- Commit messages: imperative mood, concise subject (<50 chars), body when needed
+- **Commit after each logical change** - commit immediately after completing a discrete task before starting the next one
+- Use conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`, etc.
+- Commit messages: concise subject (<50 chars), body when needed
 - Never force push or amend without explicit permission
 - Prefer small, focused commits over large changesets
 
