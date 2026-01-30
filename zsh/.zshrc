@@ -2,6 +2,14 @@
 # Consolidated config replacing .zshrc, .zprofile, and .profile
 
 # =============================================================================
+# Terminal Compatibility
+# =============================================================================
+# Fall back to xterm-256color if TERM isn't recognized (e.g., xterm-ghostty on remote)
+if ! infocmp "$TERM" &>/dev/null; then
+  export TERM=xterm-256color
+fi
+
+# =============================================================================
 # Platform Detection & Homebrew (replaces .zprofile)
 # =============================================================================
 case "$(uname -s)-$(uname -m)" in
