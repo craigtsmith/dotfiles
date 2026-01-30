@@ -4,6 +4,22 @@
 #
 
 install_stow() {
+  if ! command_exists stow; then
+    if [[ "$MINIMAL_MODE" == "true" ]]; then
+      error "stow is required for --minimal; install it or run without --minimal"
+      return 1
+    fi
+    case "$DF_OS_TYPE" in
+      macos) spin "Installing stow" brew install stow --quiet ;;
+      linux) spin "Installing stow" bash -c "export -f maybe_sudo; maybe_sudo apt-get update -qq && maybe_sudo apt-get install -y -qq stow" ;;
+      *)
+        warn "Unsupported OS for stow install"
+        return 1
+        ;;
+    esac
+    CHANGES_MADE=true
+  fi
+
   local topics=(git zsh tmux starship fzf fsh node local agents)
 
   # Add ghostty on macOS only
@@ -40,13 +56,19 @@ _install_claude_settings() {
   local dest="$settings_dir/settings.json"
   local src="$DOTFILES/agents/.claude/settings.json"
 
-  # Use coder settings in coder environment
-  if [[ "$DF_ENVIRONMENT" == "coder" ]]; then
-    src="$DOTFILES/agents/.claude/settings.coder.json"
-    info "Using coder Claude settings"
-  else
-    info "Using local Claude settings"
-  fi
+  case "$DF_ENVIRONMENT" in
+    coder)
+      src="$DOTFILES/agents/.claude/settings.coder.json"
+      info "Using coder Claude settings"
+      ;;
+    codespaces)
+      src="$DOTFILES/agents/.claude/settings.codespaces.json"
+      info "Using codespaces Claude settings"
+      ;;
+    *)
+      info "Using local Claude settings"
+      ;;
+  esac
 
   # Remove symlink if present, then copy
   mkdir -p "$settings_dir"
