@@ -20,9 +20,10 @@ install_stow() {
     fi
 
     # Try normal stow first, fall back to adopt for conflicts
-    if stow -R "$topic" 2>/dev/null; then
+    # -t $HOME needed when DOTFILES isn't directly under $HOME (e.g. Coder)
+    if stow -t "$HOME" -R "$topic" 2>/dev/null; then
       info "Stowed $topic"
-    elif stow --adopt -R "$topic" 2>/dev/null; then
+    elif stow -t "$HOME" --adopt -R "$topic" 2>/dev/null; then
       info "Stowed $topic (adopted)"
     else
       warn "Failed to stow $topic"
