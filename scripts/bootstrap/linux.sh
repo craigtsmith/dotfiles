@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# Linux bootstrap - apt packages and curl installers
+# Linux bootstrap - install essentials, warn about optional tools
 #
 
-# Install apt packages if missing
-_install_apt_packages() {
-  local packages=(build-essential curl git jq stow tmux unzip wget zsh)
+# Install essential apt packages needed for dotfiles to work
+_install_essential_apt_packages() {
+  local packages=(curl git stow tmux zsh)
   local missing=()
 
   for pkg in "${packages[@]}"; do
@@ -13,78 +13,41 @@ _install_apt_packages() {
   done
 
   if [[ ${#missing[@]} -gt 0 ]]; then
-    spin "Installing apt packages" bash -c "sudo apt-get update -qq && sudo apt-get install -y -qq ${missing[*]}"
+    # apt-get update can warn about repos but still work
+    sudo apt-get update -qq 2>/dev/null || true
+    spin "Installing essentials" bash -c "sudo apt-get install -y -qq ${missing[*]}"
     CHANGES_MADE=true
   else
-    info "apt packages up to date"
+    info "Essential packages up to date"
   fi
 }
 
-# Install eza via apt repository
-_install_eza() {
-  if command_exists eza; then
-    info "eza already installed"
-    return
-  fi
-  spin "Installing eza" bash -c '
-    sudo mkdir -p /etc/apt/keyrings
-    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null
-    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list >/dev/null
-    sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-    sudo apt-get update -qq && sudo apt-get install -y -qq eza
-  '
-  CHANGES_MADE=true
-}
+# Warn about missing optional tools that have stow configs
+_check_optional_tools() {
+  local missing=()
 
-# Install fzf from git
-_install_fzf() {
-  if command_exists fzf; then
-    info "fzf already installed"
-    return
-  fi
-  spin "Installing fzf" bash -c '
-    git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf" 2>/dev/null
-    "$HOME/.fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish >/dev/null 2>&1
-  '
-  CHANGES_MADE=true
-}
+  command_exists starship || missing+=("starship (prompt)")
+  command_exists fzf || missing+=("fzf (fuzzy finder)")
+  command_exists eza || missing+=("eza (ls replacement)")
+  command_exists zoxide || missing+=("zoxide (cd replacement)")
+  command_exists direnv || missing+=("direnv (env management)")
+  command_exists gh || missing+=("gh (GitHub CLI)")
+  command_exists uv || missing+=("uv (Python)")
 
-# Install GitHub CLI via apt repository
-_install_gh() {
-  if command_exists gh; then
-    info "gh already installed"
-    return
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    warn "Optional tools not found: ${missing[*]}"
+    info "Install manually for full functionality"
   fi
-  spin "Installing GitHub CLI" bash -c '
-    sudo mkdir -p -m 755 /etc/apt/keyrings
-    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
-    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
-    sudo apt-get update -qq && sudo apt-get install -y -qq gh
-  '
-  CHANGES_MADE=true
 }
 
 bootstrap_linux() {
-  _install_apt_packages
+  _install_essential_apt_packages
 
   # Ensure ~/.local/bin exists for user installs
   mkdir -p "$HOME/.local/bin"
 
-  # Curl-based installers (install to ~/.local/bin to avoid sudo)
-  install_with_curl starship "Installing starship" \
-    "curl -sS https://starship.rs/install.sh | sh -s -- -y -b ~/.local/bin"
-  install_with_curl zoxide "Installing zoxide" \
-    "curl -sSf https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
-  install_with_curl direnv "Installing direnv" \
-    "curl -sfL https://direnv.net/install.sh | bash"
-  install_with_curl uv "Installing uv" \
-    "curl -LsSf https://astral.sh/uv/install.sh | sh"
-
-  # Complex installers
-  _install_eza
-  _install_fzf
-  _install_gh
+  # Warn about missing optional tools
+  _check_optional_tools
 
   # nvm (check directory instead of command)
   if [[ ! -d "$HOME/.nvm" ]]; then

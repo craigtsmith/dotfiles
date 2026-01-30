@@ -67,7 +67,6 @@ source "$SCRIPT_DIR/scripts/install/stow.sh"
 source "$SCRIPT_DIR/scripts/install/tmux.sh"
 source "$SCRIPT_DIR/scripts/install/node.sh"
 source "$SCRIPT_DIR/scripts/install/coder.sh"
-source "$SCRIPT_DIR/scripts/install/opentofu.sh"
 
 main() {
   # Show initial status
@@ -90,7 +89,6 @@ main() {
   install_stow
   install_tmux
   install_coder
-  install_opentofu
 
   [[ "$MINIMAL_MODE" != "true" ]] && install_node
 
