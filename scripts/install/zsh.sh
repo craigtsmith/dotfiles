@@ -31,8 +31,8 @@ install_zsh() {
       echo "$zsh_path" | maybe_sudo tee -a /etc/shells >/dev/null
   fi
 
-  # Change shell (only in interactive local environments)
-  if [[ -t 0 && "$DF_ENVIRONMENT" == "local" ]]; then
+  # Change shell (skip in Codespaces where it may not persist)
+  if [[ "$DF_ENVIRONMENT" != "codespaces" ]]; then
     chsh -s "$zsh_path" 2>/dev/null || true
   fi
   CHANGES_MADE=true
