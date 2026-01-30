@@ -6,16 +6,7 @@
 install_omz() {
   local omz_dir="$HOME/.oh-my-zsh"
 
-  # Install or update Oh My Zsh
-  if [[ ! -d "$omz_dir" ]]; then
-    spin "Installing Oh My Zsh" bash -c 'RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" >/dev/null 2>&1'
-    set_just_installed "omz"
-    CHANGES_MADE=true
-  elif needs_update "omz"; then
-    spin "Updating Oh My Zsh" git -C "$omz_dir" pull --ff-only --quiet
-    set_updated "omz"
-    CHANGES_MADE=true
-  else
+  if ! install_or_update_repo "https://github.com/ohmyzsh/ohmyzsh.git" "$omz_dir" "omz" "Installing Oh My Zsh" "Updating Oh My Zsh"; then
     info "Oh My Zsh up to date"
   fi
 

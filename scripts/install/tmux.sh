@@ -11,15 +11,8 @@ install_tmux() {
 
   local tpm_dir="$HOME/.tmux/plugins/tpm"
 
-  if [[ ! -d "$tpm_dir" ]]; then
-    spin "Installing Tmux Plugin Manager" git clone --quiet https://github.com/tmux-plugins/tpm "$tpm_dir"
-    set_just_installed "tpm"
-    CHANGES_MADE=true
+  if install_or_update_repo "https://github.com/tmux-plugins/tpm" "$tpm_dir" "tpm" "Installing Tmux Plugin Manager" "Updating Tmux Plugin Manager"; then
     "$tpm_dir/bin/install_plugins" >/dev/null 2>&1 || true
-  elif needs_update "tpm"; then
-    spin "Updating Tmux Plugin Manager" git -C "$tpm_dir" pull --ff-only --quiet
-    set_updated "tpm"
-    CHANGES_MADE=true
   else
     info "Tmux Plugin Manager up to date"
   fi

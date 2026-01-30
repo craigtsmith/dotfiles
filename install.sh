@@ -41,6 +41,7 @@ _install_gum() {
   command_exists gum && return
 
   if [[ "$DF_OS_TYPE" == "macos" ]]; then
+    command_exists brew || return
     brew install gum --quiet >/dev/null 2>&1
   else
     mkdir -p "$HOME/.local/bin"
@@ -52,8 +53,6 @@ _install_gum() {
     rm -rf "/tmp/${gum_dir}" 2>/dev/null
   fi
 }
-
-_install_gum
 
 # Source UI and all modules
 source "$SCRIPT_DIR/scripts/ui.sh"
@@ -69,13 +68,6 @@ source "$SCRIPT_DIR/scripts/install/node.sh"
 source "$SCRIPT_DIR/scripts/install/coder.sh"
 
 main() {
-  # Show initial status
-  if has_gum; then
-    gum spin --spinner dot --title "Checking dotfiles" -- sleep 0.5
-  fi
-
-  install_zsh
-
   if [[ "$MINIMAL_MODE" != "true" ]]; then
     case "$DF_OS_TYPE" in
       macos) bootstrap_mac ;;
@@ -84,6 +76,14 @@ main() {
     bootstrap_cross_platform
   fi
 
+  _install_gum
+
+  # Show initial status
+  if has_gum; then
+    gum spin --spinner dot --title "Checking dotfiles" -- sleep 0.5
+  fi
+
+  install_zsh
   install_omz
   install_backup
   install_stow

@@ -5,7 +5,7 @@
 
 # Install essential apt packages needed for dotfiles to work
 _install_essential_apt_packages() {
-  local packages=(curl git stow tmux zsh)
+  local packages=(curl git stow tmux zsh wget gpg ca-certificates)
   local missing=()
 
   for pkg in "${packages[@]}"; do
@@ -13,9 +13,14 @@ _install_essential_apt_packages() {
   done
 
   if [[ ${#missing[@]} -gt 0 ]]; then
+    if ! sudo_available; then
+      warn "Missing apt packages (${missing[*]}); sudo unavailable, skipping."
+      return
+    fi
+
     # apt-get update can warn about repos but still work
-    sudo apt-get update -qq 2>/dev/null || true
-    spin "Installing essentials" bash -c "sudo apt-get install -y -qq ${missing[*]}"
+    export -f maybe_sudo
+    spin "Installing essentials" bash -c "maybe_sudo apt-get update -qq 2>/dev/null || true; maybe_sudo apt-get install -y -qq ${missing[*]}"
     CHANGES_MADE=true
   else
     info "Essential packages up to date"
@@ -28,11 +33,10 @@ _install_fzf() {
     info "fzf already installed"
     return
   fi
-  spin "Installing fzf" bash -c '
-    git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf" 2>/dev/null
+
+  if install_or_update_repo "https://github.com/junegunn/fzf.git" "$HOME/.fzf" "fzf" "Installing fzf" "Updating fzf"; then
     "$HOME/.fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish >/dev/null 2>&1
-  '
-  CHANGES_MADE=true
+  fi
 }
 
 # Install eza via apt repository
@@ -41,12 +45,17 @@ _install_eza() {
     info "eza already installed"
     return
   fi
+  if ! sudo_available; then
+    warn "sudo required to install eza; skipping."
+    return
+  fi
+  export -f maybe_sudo
   spin "Installing eza" bash -c '
-    sudo mkdir -p /etc/apt/keyrings
-    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null
-    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list >/dev/null
-    sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-    sudo apt-get update -qq 2>/dev/null && sudo apt-get install -y -qq eza
+    maybe_sudo mkdir -p /etc/apt/keyrings
+    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | maybe_sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null
+    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | maybe_sudo tee /etc/apt/sources.list.d/gierens.list >/dev/null
+    maybe_sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+    maybe_sudo apt-get update -qq 2>/dev/null && maybe_sudo apt-get install -y -qq eza
   '
   CHANGES_MADE=true
 }
@@ -57,12 +66,17 @@ _install_gh() {
     info "gh already installed"
     return
   fi
+  if ! sudo_available; then
+    warn "sudo required to install gh; skipping."
+    return
+  fi
+  export -f maybe_sudo
   spin "Installing GitHub CLI" bash -c '
-    sudo mkdir -p -m 755 /etc/apt/keyrings
-    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
-    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
-    sudo apt-get update -qq 2>/dev/null && sudo apt-get install -y -qq gh
+    maybe_sudo mkdir -p -m 755 /etc/apt/keyrings
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | maybe_sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
+    maybe_sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | maybe_sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+    maybe_sudo apt-get update -qq 2>/dev/null && maybe_sudo apt-get install -y -qq gh
   '
   CHANGES_MADE=true
 }

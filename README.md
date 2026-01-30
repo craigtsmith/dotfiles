@@ -15,11 +15,41 @@ Personal dotfiles for macOS and Linux using [GNU Stow](https://www.gnu.org/softw
 ```bash
 git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./install.sh          # full install
+./install.sh            # full install
 ./install.sh --minimal  # CI/containers
 ```
+
+## Support matrix
+
+- macOS (Homebrew)
+- Ubuntu/Debian (apt)
+- Codespaces (Ubuntu + no `chsh`)
+- Coder workspaces (Ubuntu + `-t $HOME` stow)
+
+## Requirements
+
+- macOS: Homebrew (installed automatically)
+- Linux: apt + sudo (or root)
+- Minimal mode: `stow` must already exist
 
 ## Local Config
 
 - `~/.localrc` - secrets/env vars
 - `~/.gitconfig.local` - git user info
+
+<details>
+<summary>Core tools installed</summary>
+
+macOS via Brewfile:
+- coreutils, jq, stow
+- direnv, eza, fzf, gum, starship, zoxide
+- gh, nvm, tmux, uv
+- ansible
+
+Linux via bootstrap:
+- apt: curl, git, stow, tmux, zsh, wget, gpg, ca-certificates
+- curl: starship, zoxide, direnv, uv, bun
+- git: fzf
+- apt repos: eza, gh
+
+</details>
