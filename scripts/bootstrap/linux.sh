@@ -35,17 +35,36 @@ _install_fzf() {
   CHANGES_MADE=true
 }
 
-# Warn about tools that need apt repos with GPG keys
-_check_apt_tools() {
-  local missing=()
-
-  command_exists eza || missing+=("eza (ls replacement)")
-  command_exists gh || missing+=("gh (GitHub CLI)")
-
-  if [[ ${#missing[@]} -gt 0 ]]; then
-    warn "Tools requiring apt repos not found: ${missing[*]}"
-    info "Install manually: https://github.com/eza-community/eza, https://cli.github.com"
+# Install eza via apt repository
+_install_eza() {
+  if command_exists eza; then
+    info "eza already installed"
+    return
   fi
+  spin "Installing eza" bash -c '
+    sudo mkdir -p /etc/apt/keyrings
+    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null
+    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list >/dev/null
+    sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+    sudo apt-get update -qq 2>/dev/null && sudo apt-get install -y -qq eza
+  '
+  CHANGES_MADE=true
+}
+
+# Install GitHub CLI via apt repository
+_install_gh() {
+  if command_exists gh; then
+    info "gh already installed"
+    return
+  fi
+  spin "Installing GitHub CLI" bash -c '
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+    sudo apt-get update -qq 2>/dev/null && sudo apt-get install -y -qq gh
+  '
+  CHANGES_MADE=true
 }
 
 bootstrap_linux() {
@@ -67,8 +86,9 @@ bootstrap_linux() {
   # Git-based installers
   _install_fzf
 
-  # Warn about tools that need apt repos (GPG keys can fail)
-  _check_apt_tools
+  # Apt-based installers
+  _install_eza
+  _install_gh
 
   # nvm (check directory instead of command)
   if [[ ! -d "$HOME/.nvm" ]]; then
