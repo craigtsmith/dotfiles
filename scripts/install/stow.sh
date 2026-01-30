@@ -4,33 +4,9 @@
 #
 
 install_stow() {
-  local stow_ready=true
-
   if ! command_exists stow; then
-    if [[ "$MINIMAL_MODE" == "true" ]]; then
-      error "stow is required for --minimal; install it or run without --minimal"
-      return 1
-    fi
-
-    case "$DF_OS_TYPE" in
-      macos)
-        spin "Installing stow" brew install stow --quiet
-        CHANGES_MADE=true
-        ;;
-      linux)
-        if ! sudo_available; then
-          warn "sudo required to install stow; skipping stow."
-          stow_ready=false
-        else
-          spin "Installing stow" bash -c "export -f maybe_sudo; maybe_sudo apt-get update -qq && maybe_sudo apt-get install -y -qq stow"
-          CHANGES_MADE=true
-        fi
-        ;;
-      *)
-        warn "Unsupported OS for stow install"
-        return 1
-        ;;
-    esac
+    warn "stow not installed; cannot stow dotfiles. Run ./install-packages.sh."
+    return
   fi
 
   local topics=(git zsh tmux starship fzf fsh node local agents)
@@ -38,7 +14,6 @@ install_stow() {
   # Add ghostty on macOS only
   [[ "$DF_OS_TYPE" == "macos" ]] && topics+=(ghostty)
 
-  if [[ "$stow_ready" == "true" ]]; then
   cd "$DOTFILES"
 
   info "Stowing topics: ${topics[*]}"
@@ -59,8 +34,6 @@ install_stow() {
       warn "Failed to stow $topic"
     fi
   done
-
-  fi
 
   # Use environment-specific Claude settings
   _install_claude_settings

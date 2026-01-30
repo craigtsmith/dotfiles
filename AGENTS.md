@@ -5,8 +5,9 @@ This file provides guidance to agents when working with code in this repository.
 ## Commands
 
 ```bash
-./install.sh              # Full installation
-./install.sh --minimal    # CI/containers (skip heavy tools)
+./install-packages.sh     # Manual package install (optional)
+./install.sh              # Stow dotfiles
+./install.sh --minimal    # CI/containers (skip optional tooling setup)
 ./install.sh --skip-updates  # Skip update checks for git repos
 
 stow -R <package>         # Re-stow a single package after changes

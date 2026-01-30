@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Node.js setup via nvm
+# Node.js checks via nvm
 #
 
 # Source nvm from known locations
@@ -52,17 +52,6 @@ _sanitize_npmrc() {
   warn "Removed prefix/globalconfig from .npmrc (backup saved)"
 }
 
-# Install default packages from config
-_install_default_packages() {
-  local packages_file="$DOTFILES/node/.config/node/default-packages"
-  [[ ! -f "$packages_file" ]] && return
-
-  while IFS= read -r package || [[ -n "$package" ]]; do
-    [[ "$package" =~ ^#.*$ || -z "$package" ]] && continue
-    spin "Installing $package" bash -c "pnpm add -g \"$package\" >/dev/null 2>&1 || npm install -g \"$package\" >/dev/null 2>&1"
-  done < "$packages_file"
-}
-
 install_node() {
   _source_nvm
 
@@ -70,38 +59,25 @@ install_node() {
     _sanitize_npmrc
   fi
 
-  # Exit if nvm is not available
+  if ! command_exists node; then
+    warn "Node.js not installed; skipping Node setup. Run ./install-packages.sh."
+    return
+  fi
+
   if ! type nvm >/dev/null 2>&1; then
-    info "nvm not available, skipping Node.js"
+    warn "nvm not available; skipping Node version management."
     return
   fi
 
   local node_version
   node_version="$(_get_node_version)"
 
-  # Skip if version already installed
-  if nvm ls "$node_version" >/dev/null 2>&1; then
-    info "Node.js $node_version already installed"
+  if ! nvm ls "$node_version" >/dev/null 2>&1; then
+    warn "Node.js $node_version not installed via nvm; skipping."
     return
   fi
 
-  # Install node (nvm is a shell function, must run in subshell for spinner)
-  spin "Installing Node.js $node_version" bash -c "
-    export NVM_DIR=\"\$HOME/.nvm\"
-    [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"
-    nvm install $node_version >/dev/null 2>&1
-  "
-
-  if [[ "$DF_ENVIRONMENT" == "coder" ]] && _npmrc_has_prefix; then
-    warn "npmrc prefix/globalconfig detected; running nvm use --delete-prefix"
-    nvm use --delete-prefix "$node_version" --silent >/dev/null 2>&1 || true
-  fi
-
-  nvm alias default "$node_version" >/dev/null 2>&1
-  nvm use default >/dev/null 2>&1 || true
-  CHANGES_MADE=true
-
-  # Setup pnpm and default packages
-  spin "Enabling pnpm" bash -c "npm install -g corepack@latest >/dev/null 2>&1 && corepack enable pnpm >/dev/null 2>&1"
-  _install_default_packages
+  nvm alias default "$node_version" >/dev/null 2>&1 || true
+  nvm use "$node_version" >/dev/null 2>&1 || true
+  info "Node.js $node_version already installed"
 }

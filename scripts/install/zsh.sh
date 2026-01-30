@@ -4,23 +4,13 @@
 #
 
 install_zsh() {
-  # Install zsh if not present
+  # Warn if zsh is missing
   if ! command_exists zsh; then
-    case "$DF_OS_TYPE" in
-      macos) spin "Installing zsh" brew install zsh --quiet ;;
-      linux)
-        if ! sudo_available; then
-          warn "sudo required to install zsh; skipping."
-          return
-        fi
-        spin "Installing zsh" bash -c "export -f maybe_sudo; maybe_sudo apt-get update -qq && maybe_sudo apt-get install -y -qq zsh"
-        ;;
-
-    esac
-    CHANGES_MADE=true
-  else
-    info "zsh already installed"
+    warn "zsh not installed; skipping zsh setup. Run ./install-packages.sh."
+    return
   fi
+
+  info "zsh already installed"
 
   # Set zsh as default shell if not already
   local current_shell zsh_path

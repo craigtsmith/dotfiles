@@ -5,7 +5,12 @@
 
 install_tmux() {
   if ! command_exists tmux; then
-    info "tmux not installed, skipping TPM"
+    warn "tmux not installed; skipping TPM."
+    return
+  fi
+
+  if ! command_exists git; then
+    warn "git not installed; skipping TPM."
     return
   fi
 

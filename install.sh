@@ -4,11 +4,12 @@
 # Single entry point for GitHub Codespaces, Coder, and local setup
 #
 # Usage:
-#   ./install.sh              # Full installation
-#   ./install.sh --minimal    # Skip heavy tools
+#   ./install.sh              # Install dotfiles (no packages)
+#   ./install.sh --minimal    # Skip optional tooling setup
 #   ./install.sh --verbose    # Show all messages
 #   ./install.sh --skip-updates # Skip update checks
 #   ./install.sh --force      # Skip checks, run everything
+#   ./install-packages.sh     # Manually install packages
 #
 
 set -e
@@ -36,29 +37,8 @@ done
 # Source core helpers
 source "$SCRIPT_DIR/scripts/lib.sh"
 
-# Install gum for UI (silently)
-_install_gum() {
-  command_exists gum && return
-
-  if [[ "$DF_OS_TYPE" == "macos" ]]; then
-    command_exists brew || return
-    brew install gum --quiet >/dev/null 2>&1
-  else
-    mkdir -p "$HOME/.local/bin"
-    local arch="x86_64"
-    [[ "$DF_OS_ARCH" == "aarch64" || "$DF_OS_ARCH" == "arm64" ]] && arch="arm64"
-    local gum_dir="gum_${GUM_VERSION}_Linux_${arch}"
-    curl -sL "https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/${gum_dir}.tar.gz" | tar -xz -C /tmp 2>/dev/null
-    mv "/tmp/${gum_dir}/gum" "$HOME/.local/bin/" 2>/dev/null || maybe_sudo mv "/tmp/${gum_dir}/gum" /usr/local/bin/
-    rm -rf "/tmp/${gum_dir}" 2>/dev/null
-  fi
-}
-
 # Source UI and all modules
 source "$SCRIPT_DIR/scripts/ui.sh"
-source "$SCRIPT_DIR/scripts/bootstrap/mac.sh"
-source "$SCRIPT_DIR/scripts/bootstrap/linux.sh"
-source "$SCRIPT_DIR/scripts/bootstrap/cross-platform.sh"
 source "$SCRIPT_DIR/scripts/install/zsh.sh"
 source "$SCRIPT_DIR/scripts/install/omz.sh"
 source "$SCRIPT_DIR/scripts/install/backup.sh"
@@ -67,21 +47,40 @@ source "$SCRIPT_DIR/scripts/install/tmux.sh"
 source "$SCRIPT_DIR/scripts/install/node.sh"
 source "$SCRIPT_DIR/scripts/install/coder.sh"
 
+warn_missing_packages() {
+  local required=(git stow zsh)
+  local optional=(tmux fzf eza starship zoxide direnv uv bun gh gum)
+  local missing_required=()
+  local missing_optional=()
+
+  for tool in "${required[@]}"; do
+    command_exists "$tool" || missing_required+=("$tool")
+  done
+
+  for tool in "${optional[@]}"; do
+    command_exists "$tool" || missing_optional+=("$tool")
+  done
+
+  if [[ ${#missing_required[@]} -gt 0 ]]; then
+    warn "Missing required tools: ${missing_required[*]}"
+  fi
+
+  if [[ ${#missing_optional[@]} -gt 0 ]]; then
+    warn "Missing optional tools: ${missing_optional[*]}"
+  fi
+
+  if [[ ${#missing_required[@]} -gt 0 || ${#missing_optional[@]} -gt 0 ]]; then
+    warn "Run ./install-packages.sh to install prerequisites."
+  fi
+}
+
 # Avoid failing Coder deployments on non-critical installer errors.
 if [[ "$DF_ENVIRONMENT" == "coder" ]]; then
   set +e
 fi
 
 main() {
-  if [[ "$MINIMAL_MODE" != "true" ]]; then
-    case "$DF_OS_TYPE" in
-      macos) bootstrap_mac ;;
-      linux) bootstrap_linux ;;
-    esac
-    bootstrap_cross_platform
-  fi
-
-  _install_gum
+  warn_missing_packages
 
   # Show initial status
   if has_gum; then
