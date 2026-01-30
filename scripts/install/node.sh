@@ -30,6 +30,28 @@ _npmrc_has_prefix() {
   grep -Eq '^\s*(prefix|globalconfig)\s*=' "$HOME/.npmrc"
 }
 
+_sanitize_npmrc() {
+  local npmrc="$HOME/.npmrc"
+
+  _npmrc_has_prefix || return 0
+
+  if [[ ! -w "$npmrc" ]]; then
+    warn ".npmrc has prefix/globalconfig but isn't writable; skipping"
+    return 0
+  fi
+
+  local backup="${npmrc}.dotfiles.$(date +%Y%m%d%H%M%S).bak"
+
+  if ! cp "$npmrc" "$backup" 2>/dev/null; then
+    warn "Unable to backup .npmrc; skipping cleanup"
+    return 0
+  fi
+
+  grep -Ev '^\s*(prefix|globalconfig)\s*=' "$npmrc" > "${npmrc}.tmp" || true
+  mv "${npmrc}.tmp" "$npmrc"
+  warn "Removed prefix/globalconfig from .npmrc (backup saved)"
+}
+
 # Install default packages from config
 _install_default_packages() {
   local packages_file="$DOTFILES/node/.config/node/default-packages"
@@ -43,6 +65,10 @@ _install_default_packages() {
 
 install_node() {
   _source_nvm
+
+  if [[ "$DF_ENVIRONMENT" == "coder" ]]; then
+    _sanitize_npmrc
+  fi
 
   # Exit if nvm is not available
   if ! type nvm >/dev/null 2>&1; then
