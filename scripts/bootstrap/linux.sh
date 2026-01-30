@@ -13,7 +13,7 @@ _install_apt_packages() {
   done
 
   if [[ ${#missing[@]} -gt 0 ]]; then
-    spin "Installing apt packages" bash -c "apt-get update -qq && apt-get install -y -qq ${missing[*]}"
+    spin "Installing apt packages" bash -c "sudo apt-get update -qq && sudo apt-get install -y -qq ${missing[*]}"
     CHANGES_MADE=true
   else
     info "apt packages up to date"
@@ -27,11 +27,11 @@ _install_eza() {
     return
   fi
   spin "Installing eza" bash -c '
-    mkdir -p /etc/apt/keyrings
-    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null
-    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list >/dev/null
-    chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-    apt-get update -qq && apt-get install -y -qq eza
+    sudo mkdir -p /etc/apt/keyrings
+    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null
+    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list >/dev/null
+    sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+    sudo apt-get update -qq && sudo apt-get install -y -qq eza
   '
   CHANGES_MADE=true
 }
@@ -56,11 +56,11 @@ _install_gh() {
     return
   fi
   spin "Installing GitHub CLI" bash -c '
-    mkdir -p -m 755 /etc/apt/keyrings
-    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
-    chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list >/dev/null
-    apt-get update -qq && apt-get install -y -qq gh
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+    sudo apt-get update -qq && sudo apt-get install -y -qq gh
   '
   CHANGES_MADE=true
 }
