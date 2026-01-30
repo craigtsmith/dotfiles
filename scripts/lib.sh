@@ -73,6 +73,18 @@ maybe_sudo() {
   fi
 }
 
+# Check if sudo can be used in this environment
+sudo_available() {
+  [[ "$(id -u)" -eq 0 ]] && return 0
+  command_exists sudo || return 1
+
+  if [[ "$DF_ENVIRONMENT" == "local" ]]; then
+    return 0
+  fi
+
+  sudo -n true >/dev/null 2>&1
+}
+
 # Pre-authenticate sudo before running spinner commands
 # This prompts for password upfront so spinners don't swallow the prompt
 require_sudo() {

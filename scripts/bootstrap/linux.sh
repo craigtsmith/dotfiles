@@ -13,6 +13,11 @@ _install_essential_apt_packages() {
   done
 
   if [[ ${#missing[@]} -gt 0 ]]; then
+    if ! sudo_available; then
+      warn "Missing apt packages (${missing[*]}); sudo unavailable, skipping."
+      return
+    fi
+
     # apt-get update can warn about repos but still work
     export -f maybe_sudo
     spin "Installing essentials" bash -c "maybe_sudo apt-get update -qq 2>/dev/null || true; maybe_sudo apt-get install -y -qq ${missing[*]}"
@@ -40,6 +45,10 @@ _install_eza() {
     info "eza already installed"
     return
   fi
+  if ! sudo_available; then
+    warn "sudo required to install eza; skipping."
+    return
+  fi
   export -f maybe_sudo
   spin "Installing eza" bash -c '
     maybe_sudo mkdir -p /etc/apt/keyrings
@@ -55,6 +64,10 @@ _install_eza() {
 _install_gh() {
   if command_exists gh; then
     info "gh already installed"
+    return
+  fi
+  if ! sudo_available; then
+    warn "sudo required to install gh; skipping."
     return
   fi
   export -f maybe_sudo
