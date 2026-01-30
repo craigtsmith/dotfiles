@@ -73,6 +73,14 @@ maybe_sudo() {
   fi
 }
 
+# Pre-authenticate sudo before running spinner commands
+# This prompts for password upfront so spinners don't swallow the prompt
+require_sudo() {
+  [[ "$(id -u)" -eq 0 ]] && return 0
+  command_exists sudo || return 0
+  sudo -v
+}
+
 # Backup a file if it exists and is not a symlink
 # Returns 0 if backed up, 1 if nothing to do
 backup_file() {
