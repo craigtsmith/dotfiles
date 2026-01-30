@@ -13,8 +13,8 @@
 
 set -e
 
-export DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export DOTFILES="${DOTFILES:-$SCRIPT_DIR}"
 
 export CHANGES_MADE=false
 export VERBOSE=false
