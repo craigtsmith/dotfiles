@@ -28,11 +28,10 @@ _install_fzf() {
     info "fzf already installed"
     return
   fi
-  spin "Installing fzf" bash -c '
-    git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf" 2>/dev/null
+
+  if install_or_update_repo "https://github.com/junegunn/fzf.git" "$HOME/.fzf" "fzf" "Installing fzf" "Updating fzf"; then
     "$HOME/.fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish >/dev/null 2>&1
-  '
-  CHANGES_MADE=true
+  fi
 }
 
 # Install eza via apt repository

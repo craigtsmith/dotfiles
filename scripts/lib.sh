@@ -172,10 +172,7 @@ install_omz_plugin() {
   local omz_dir="$HOME/.oh-my-zsh"
   local dest="${ZSH_CUSTOM:-$omz_dir/custom}/plugins/$plugin_name"
 
-  if [[ ! -d "$dest" ]]; then
-    spin "Installing $plugin_name" git clone --quiet "$repo" "$dest"
-    CHANGES_MADE=true
-  else
+  if ! install_or_update_repo "$repo" "$dest" "$plugin_name" "Installing $plugin_name" "Updating $plugin_name"; then
     info "$plugin_name already installed"
   fi
 }
