@@ -68,15 +68,18 @@ _install_gh() {
 bootstrap_linux() {
   _install_apt_packages
 
-  # Curl-based installers
+  # Ensure ~/.local/bin exists for user installs
+  mkdir -p "$HOME/.local/bin"
+
+  # Curl-based installers (install to ~/.local/bin to avoid sudo)
   install_with_curl starship "Installing starship" \
-    "curl -sS https://starship.rs/install.sh | sh -s -- -y >/dev/null 2>&1"
+    "curl -sS https://starship.rs/install.sh | sh -s -- -y -b ~/.local/bin"
   install_with_curl zoxide "Installing zoxide" \
-    "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash >/dev/null 2>&1"
+    "curl -sSf https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
   install_with_curl direnv "Installing direnv" \
-    "curl -sfL https://direnv.net/install.sh | bash >/dev/null 2>&1"
+    "curl -sfL https://direnv.net/install.sh | bash"
   install_with_curl uv "Installing uv" \
-    "curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1"
+    "curl -LsSf https://astral.sh/uv/install.sh | sh"
 
   # Complex installers
   _install_eza
