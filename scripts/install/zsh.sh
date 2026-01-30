@@ -8,7 +8,7 @@ install_zsh() {
   if ! command_exists zsh; then
     case "$DF_OS_TYPE" in
       macos) spin "Installing zsh" brew install zsh --quiet ;;
-      linux) spin "Installing zsh" bash -c "sudo apt-get update -qq && sudo apt-get install -y -qq zsh" ;;
+      linux) spin "Installing zsh" bash -c "export -f maybe_sudo; maybe_sudo apt-get update -qq && maybe_sudo apt-get install -y -qq zsh" ;;
     esac
     CHANGES_MADE=true
   else
