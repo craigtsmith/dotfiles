@@ -24,6 +24,12 @@ _get_node_version() {
   fi
 }
 
+# Check for npmrc settings that break nvm
+_npmrc_has_prefix() {
+  [[ -f "$HOME/.npmrc" ]] || return 1
+  grep -Eq '^\s*(prefix|globalconfig)\s*=' "$HOME/.npmrc"
+}
+
 # Install default packages from config
 _install_default_packages() {
   local packages_file="$DOTFILES/node/.config/node/default-packages"
@@ -60,8 +66,13 @@ install_node() {
     nvm install $node_version >/dev/null 2>&1
   "
 
+  if [[ "$DF_ENVIRONMENT" == "coder" ]] && _npmrc_has_prefix; then
+    warn "npmrc prefix/globalconfig detected; running nvm use --delete-prefix"
+    nvm use --delete-prefix "$node_version" --silent >/dev/null 2>&1 || true
+  fi
+
   nvm alias default "$node_version" >/dev/null 2>&1
-  nvm use default >/dev/null 2>&1
+  nvm use default >/dev/null 2>&1 || true
   CHANGES_MADE=true
 
   # Setup pnpm and default packages
