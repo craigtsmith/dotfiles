@@ -66,7 +66,7 @@ detect_environment() {
 
 # Handle sudo in environments that may not have it
 maybe_sudo() {
-  if command_exists sudo && [[ "$(id -u)" -ne 0 ]]; then
+  if command -v sudo >/dev/null 2>&1 && [[ "$(id -u)" -ne 0 ]]; then
     sudo "$@"
   else
     "$@"
