@@ -67,6 +67,11 @@ source "$SCRIPT_DIR/scripts/install/tmux.sh"
 source "$SCRIPT_DIR/scripts/install/node.sh"
 source "$SCRIPT_DIR/scripts/install/coder.sh"
 
+# Avoid failing Coder deployments on non-critical installer errors.
+if [[ "$DF_ENVIRONMENT" == "coder" ]]; then
+  set +e
+fi
+
 main() {
   if [[ "$MINIMAL_MODE" != "true" ]]; then
     case "$DF_OS_TYPE" in
