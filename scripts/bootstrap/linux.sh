@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Linux bootstrap - install essentials, warn about optional tools
+# Linux bootstrap - install essentials and tools
 #
 
 # Install essential apt packages needed for dotfiles to work
@@ -22,21 +22,29 @@ _install_essential_apt_packages() {
   fi
 }
 
-# Warn about missing optional tools that have stow configs
-_check_optional_tools() {
+# Install fzf from git
+_install_fzf() {
+  if command_exists fzf; then
+    info "fzf already installed"
+    return
+  fi
+  spin "Installing fzf" bash -c '
+    git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf" 2>/dev/null
+    "$HOME/.fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish >/dev/null 2>&1
+  '
+  CHANGES_MADE=true
+}
+
+# Warn about tools that need apt repos with GPG keys
+_check_apt_tools() {
   local missing=()
 
-  command_exists starship || missing+=("starship (prompt)")
-  command_exists fzf || missing+=("fzf (fuzzy finder)")
   command_exists eza || missing+=("eza (ls replacement)")
-  command_exists zoxide || missing+=("zoxide (cd replacement)")
-  command_exists direnv || missing+=("direnv (env management)")
   command_exists gh || missing+=("gh (GitHub CLI)")
-  command_exists uv || missing+=("uv (Python)")
 
   if [[ ${#missing[@]} -gt 0 ]]; then
-    warn "Optional tools not found: ${missing[*]}"
-    info "Install manually for full functionality"
+    warn "Tools requiring apt repos not found: ${missing[*]}"
+    info "Install manually: https://github.com/eza-community/eza, https://cli.github.com"
   fi
 }
 
@@ -46,8 +54,21 @@ bootstrap_linux() {
   # Ensure ~/.local/bin exists for user installs
   mkdir -p "$HOME/.local/bin"
 
-  # Warn about missing optional tools
-  _check_optional_tools
+  # Curl-based installers (install to ~/.local/bin to avoid sudo)
+  install_with_curl starship "Installing starship" \
+    "curl -sS https://starship.rs/install.sh | sh -s -- -y -b ~/.local/bin"
+  install_with_curl zoxide "Installing zoxide" \
+    "curl -sSf https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
+  install_with_curl direnv "Installing direnv" \
+    "curl -sfL https://direnv.net/install.sh | bash"
+  install_with_curl uv "Installing uv" \
+    "curl -LsSf https://astral.sh/uv/install.sh | sh"
+
+  # Git-based installers
+  _install_fzf
+
+  # Warn about tools that need apt repos (GPG keys can fail)
+  _check_apt_tools
 
   # nvm (check directory instead of command)
   if [[ ! -d "$HOME/.nvm" ]]; then

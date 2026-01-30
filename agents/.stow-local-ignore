@@ -1,0 +1,2 @@
+# Ignore .claude - settings handled by _install_claude_settings()
+\.claude
